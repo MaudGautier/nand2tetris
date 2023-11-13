@@ -17,4 +17,19 @@ CHIP PC {
 
     PARTS:
     // Put your code here:
+    // If increment
+    Inc16(in=feedbackOut, out=feedbackIncremented);
+    Mux16(a=feedbackOut, b=feedbackIncremented, sel=inc, out=incrementedOut);
+
+    // If load
+    Mux16(a=incrementedOut, b=in, sel=load, out=loadedOut);
+
+    // If reset
+    Mux16(a=loadedOut, b=false, sel=reset, out=resetOut);
+
+    // If nothing
+    // -> Stays feedbackOut
+
+    // Put in register
+    Register(in=resetOut, load=true, out=out, out=feedbackOut);
 }
