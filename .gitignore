@@ -1,4 +1,4 @@
 projects/*.zip
 .idea/
-tools/bin/Hardware\ Simulator.dat
+tools/bin/*.dat
 projects/**/*.out
