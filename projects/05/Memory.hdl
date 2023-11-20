@@ -28,4 +28,24 @@ CHIP Memory {
 
     PARTS:
     // Put your code here:
+
+    // RAM         000 0000 0000 0000 - 011 1111 1111 1111 (16K: 0 -> 16,383)
+    // Screen      100 0000 0000 0000 - 101 1111 1111 1111 (8K: 16,384 -> 24,575)
+    // Keyboard    110 0000 0000 0000                      (1: 24,576)
+
+    // Demux the input to the correct memory element (RAM, Screen or Keyboard)
+    DMux4Way(in=load, sel=address[13..14], a=loadRam1, b=loadRam2, c=loadScreen, d=loadKeyboard);
+    Or(a=loadRam1, b=loadRam2, out=loadRam);
+
+    // RAM (first 16K)
+    RAM16K(in=in, load=loadRam, address=address[0..13], out=outRam);
+
+    // Screen (second 8K)
+    Screen(in=in, load=loadScreen, address=address[0..12], out=outScreen);
+
+    // Keyboard (last address)
+    Keyboard(out=outKeyboard);
+
+    // Mux the result
+    Mux4Way16(a=outRam, b=outRam, c=outScreen, d=outKeyboard, sel=address[13..14], out=out);
 }
