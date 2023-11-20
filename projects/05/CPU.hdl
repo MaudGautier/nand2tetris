@@ -63,6 +63,11 @@ CHIP CPU {
     And(a=isInstructionC, b=instruction[7], out=c5);                // c5
     And(a=isInstructionC, b=instruction[6], out=c6);                // c6
 
+    // Decode Jump bits for instruction C
+    And(a=isInstructionC, b=instruction[2], out=jumpIfStrictNeg);   // j1
+    And(a=isInstructionC, b=instruction[1], out=jumpIfZero);        // j2
+    And(a=isInstructionC, b=instruction[0], out=jumpIfStrictPos);   // j3
+
 
     // ------------------------------------ Implement chips ------------------------------------
 
@@ -81,6 +86,23 @@ CHIP CPU {
     // ALU
     ALU(x=outRegisterD, y=outMux2, zx=c1, nx=c2, zy=c3, ny=c4, f=c5, no=c6, out=outALU, out=outM, zr=zr, ng=ng);
 
+    // ------------------------------------ Implement PC ------------------------------------
+
+    // Decode ALU out
+    And(a=true, b=zr, out=outEqualsZero);
+    Not(in=outEqualsZero, out=outNotZero);
+    And(a=outNotZero, b=ng, out=outIsStrictlyNegative);
+    Or(a=outEqualsZero, b=outIsStrictlyNegative, out=outIsNegative);
+    Not(in=outIsNegative, out=outIsStrictlyPositive);
+
+    // Jump decision
+    And(a=jumpIfStrictNeg, b=outIsStrictlyNegative, out=jumpCase1);
+    And(a=jumpIfZero, b=outEqualsZero, out=jumpCase2);
+    And(a=jumpIfStrictPos, b=outIsStrictlyPositive, out=jumpCase3);
+    Or(a=jumpCase1, b=jumpCase2, out=jumpCase1or2);
+    Or(a=jumpCase3, b=jumpCase1or2, out=jump);
+    Not(in=jump, out=noJump);
+
     // The PC
-    // PC(in=outRegisterA, load=, inc=, reset=reset, out=pc);
+    PC(in=outRegisterA, load=jump, inc=noJump, reset=reset, out[0..14]=pc);
 }
