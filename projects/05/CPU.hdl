@@ -41,21 +41,46 @@ CHIP CPU {
     PARTS:
     // Put your code here:
 
+    // ------------------------------------ Read instructions ------------------------------------
+
+    // Decode op-code
+    Not(in=instruction[15], out=isInstructionA);                    // op-code A
+    Not(in=isInstructionA, out=isInstructionC);                     // op-code C
+
+    // Decode Destination
+    Or(a=isInstructionA, b=instruction[5], out=loadRegisterA);      // d1
+    And(a=isInstructionC, b=instruction[4], out=loadRegisterD);     // d2
+    And(a=isInstructionC, b=instruction[3], out=writeM);            // d3
+
+    // Decode Computation bit "a" for instruction C
+    And(a=isInstructionC, b=instruction[12], out=selectRegisterM);  // a
+
+    // Decode Computation bits for instruction C
+    And(a=isInstructionC, b=instruction[11], out=c1);               // c1
+    And(a=isInstructionC, b=instruction[10], out=c2);               // c2
+    And(a=isInstructionC, b=instruction[9], out=c3);                // c3
+    And(a=isInstructionC, b=instruction[8], out=c4);                // c4
+    And(a=isInstructionC, b=instruction[7], out=c5);                // c5
+    And(a=isInstructionC, b=instruction[6], out=c6);                // c6
+
+
+    // ------------------------------------ Implement chips ------------------------------------
+
     // First Mux
-    Mux16(a=outALU, b=instruction, sel=, out=outMux1);
+    Mux16(a=outALU, b=instruction, sel=isInstructionA, out=outMux1);
 
     // The A register
-    ARegister(in=outMux1, load=, out=outRegisterA);
+    ARegister(in=outMux1, load=loadRegisterA, out=outRegisterA, out[0..14]=addressM);
 
     // Second Mux
-    Mux16(a=outRegisterA, b=inM, sel=, out=outMux2);
+    Mux16(a=outRegisterA, b=inM, sel=selectRegisterM, out=outMux2);
 
     // The D register
-    DRegister(in=outALU, load=, out=outRegisterD);
+    DRegister(in=outALU, load=loadRegisterD, out=outRegisterD);
 
     // ALU
-    ALU(x=outRegisterD, y=outMux2, zx=, nx=, zy=, ny=, f=, no=, out=outALU, zr=, nr=);
+    ALU(x=outRegisterD, y=outMux2, zx=c1, nx=c2, zy=c3, ny=c4, f=c5, no=c6, out=outALU, out=outM, zr=zr, ng=ng);
 
     // The PC
-    PC(in=outRegisterA, load=, inc=, reset=reset, out=pc);
+    // PC(in=outRegisterA, load=, inc=, reset=reset, out=pc);
 }
