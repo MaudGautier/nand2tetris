@@ -5,3 +5,5 @@ projects/**/*.out
 # Output hack files for project 06
 projects/06/**/*.comp.hack
 projects/06/**/*.hack
+# Compilation files for project 06
+projects/06/hack_assembler/__pycache__/
