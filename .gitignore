@@ -2,3 +2,6 @@ projects/*.zip
 .idea/
 tools/bin/*.dat
 projects/**/*.out
+# Output hack files for project 06
+projects/06/**/*.comp.hack
+projects/06/**/*.hack
