@@ -24,10 +24,10 @@ class HackAssembler:
         """
 
         while parser.has_more_commands():
-            parser.advance_first_scan()
-            command = parser.current_CandL
+            parser.advance()
+            command = parser.current_command
             if command.is_label():
-                symbols.add_entry(symbol=command.get_symbol(), address=parser.current_command_index + 1)
+                symbols.add_entry(symbol=command.get_symbol(), address=parser.current_command_without_labels_index + 1)
 
     @staticmethod
     def __second_scan(output_file_name: str, parser: HackParser, symbols: HackSymbolTable):
@@ -35,7 +35,8 @@ class HackAssembler:
         with open(output_file_name, "w") as output_file:
             while parser.has_more_commands():
                 parser.advance()
-                binary_code = parser.current_command.convert_to_binary(symbols)
+                command = parser.current_command
+                binary_code = command.convert_to_binary(symbols)
                 output_file.write(binary_code + "\n")
 
     """ Public methods """

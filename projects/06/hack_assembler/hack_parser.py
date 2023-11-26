@@ -14,19 +14,18 @@ class HackParser:
     commands: list[HackCommand]
     current_command_index: int
     current_command: Optional[HackCommand]
-    commands_and_label_declarations: list[HackCommand]
-    current_CandL_index: int
-    current_CandL: Optional[HackCommand]
+    current_command_without_labels_index: int
 
     """ Private methods """
 
-    def __init__(self, file_name: FileName):
+    def __init__(self, file_name: FileName, is_first_scan: bool = True):
         self.file_name = file_name
-        self.commands = self.__get_commands()
-        self.commands_and_label_declarations = self.__get_valid_lines()
-        self.restart()
+        self.commands = self.__get_commands(include_labels=is_first_scan)
+        self.current_command_index = -1
+        self.current_command = None
+        self.current_command_without_labels_index = -1
 
-    def __get_commands(self) -> list[HackCommand]:
+    def __get_commands(self, include_labels: bool = False) -> list[HackCommand]:
         with open(self.file_name, "r") as file:
             lines = file.readlines()
 
@@ -39,25 +38,7 @@ class HackParser:
                 commands.append(HackACommand(line))
             elif command.is_c_command():
                 commands.append(HackCCommand(line))
-            elif command.is_label():
-                pass  # Do not add labels to list of commands
-
-        return commands
-
-    def __get_valid_lines(self) -> list[HackCommand]:
-        with open(self.file_name, "r") as file:
-            lines = file.readlines()
-
-        commands: list[HackCommand] = []
-        for line in lines:
-            command = HackCommand(line)
-            if not command.is_valid():
-                continue
-            if command.is_a_command():
-                commands.append(HackACommand(line))
-            elif command.is_c_command():
-                commands.append(HackCCommand(line))
-            elif command.is_label():
+            elif include_labels and command.is_label():
                 commands.append(HackLabel(line))
 
         return commands
@@ -72,15 +53,8 @@ class HackParser:
     def advance(self):
         self.current_command_index += 1
         self.current_command = self.commands[self.current_command_index]
-
-    def advance_first_scan(self):
-        self.current_CandL_index += 1
-        self.current_CandL = self.commands_and_label_declarations[self.current_CandL_index]
-        if not self.current_CandL.is_label():
-            self.advance()
+        if not self.current_command.is_label():
+            self.current_command_without_labels_index += 1
 
     def restart(self):
-        self.current_command_index = -1
-        self.current_command = None
-        self.current_CandL_index = -1
-        self.current_CandL = None
+        self.__init__(file_name=self.file_name, is_first_scan=False)
