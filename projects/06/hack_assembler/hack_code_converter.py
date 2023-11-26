@@ -1,10 +1,10 @@
-from hack_types import CJump, CDest, CComp
+from hack_types import CJump, CDest, CComp, BinaryCode
 
 # Types
 Mnemonics = dict
-ComputationMnemonics = Mnemonics
-DestinationMnemonics = Mnemonics
-JumpMnemonics = Mnemonics
+ComputationMnemonics = Mnemonics[CComp, BinaryCode]
+DestinationMnemonics = Mnemonics[CDest, BinaryCode]
+JumpMnemonics = Mnemonics[CJump, BinaryCode]
 
 # Constants
 COMPUTATION_MNEMONICS: ComputationMnemonics = {

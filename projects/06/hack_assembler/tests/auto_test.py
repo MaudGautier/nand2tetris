@@ -41,6 +41,15 @@ class MyTestCase(unittest.TestCase):
     def test_pongL(self):
         self.__test_compare_expected_with_generated("projects/06/pong/PongL")
 
+    def test_max(self):
+        self.__test_compare_expected_with_generated("projects/06/max/Max")
+
+    def test_rect(self):
+        self.__test_compare_expected_with_generated("projects/06/rect/Rect")
+
+    def test_pong(self):
+        self.__test_compare_expected_with_generated("projects/06/pong/Pong")
+
 
 if __name__ == "__main__":
     unittest.main()
